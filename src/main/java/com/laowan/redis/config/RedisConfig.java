@@ -3,8 +3,6 @@ package com.laowan.redis.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.laowan.redis.service.RedisManageService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -14,7 +12,6 @@ import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -27,7 +24,6 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.time.Duration;
 
@@ -36,6 +32,7 @@ import java.time.Duration;
  * 1、@EnableCaching是为了开启spring cache的缓存注解功能
  * 2、继承CachingConfigurerSupport是为了配置spring cache的主键生成策略keyGenerator和cacheManager
  * 3、配置RedisTemplate的序列化机制Jackson
+ * 4、配置spring cache的异常处理类CacheErrorHandler
  * @program: wxswj
  * @description: redis配置类
  * @author: wanli
@@ -107,19 +104,6 @@ public class RedisConfig extends CachingConfigurerSupport {
                 .entryTtl(Duration.ofHours(1));
 
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory)).cacheDefaults(redisCacheConfiguration).build();
-    }
-
-
-    /**
-     * 定义自定义的缓存服务类
-     * @param redisConnectionFactory
-     * @return
-     */
-    @Bean
-    public RedisManageService redisManageService(LettuceConnectionFactory redisConnectionFactory){
-        RedisManageService redisManageService = new RedisManageService();
-        redisManageService.setRedisTemplate(this.redisTemplate(redisConnectionFactory));
-        return redisManageService;
     }
 
 
